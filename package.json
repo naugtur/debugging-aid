@@ -1,0 +1,33 @@
+{
+  "name": "debugging-aid",
+  "version": "0.0.1",
+  "description": "Experimental tools for debugging Node.js apps without pausing",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "standard --fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/naugtur/debugging-aid.git"
+  },
+  "keywords": [
+    "debugging",
+    "debug",
+    "promises",
+    "async",
+    "diagnostics",
+    "node",
+    "nodejs"
+  ],
+  "author": "naugtur",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "bugs": {
+    "url": "https://github.com/naugtur/debugging-aid/issues"
+  },
+  "homepage": "https://github.com/naugtur/debugging-aid#readme",
+  "devDependencies": {
+    "pre-commit": "^1.2.2",
+    "standard": "^12.0.1"
+  }
+}

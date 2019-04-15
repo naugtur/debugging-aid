@@ -1,1 +1,2 @@
-require("./src/promises")
+require('./src/promises')
+require('./src/blocked')

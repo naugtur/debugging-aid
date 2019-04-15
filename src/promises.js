@@ -1,16 +1,18 @@
-const { printMessage } = require("./print");
-process.on("multipleResolves", (type, promise, reason) => {
-    printMap('multipleResolves', {type, promise, reason});
+const { printMap, printMessage } = require("./print");
+process.on("multipleResolves", (type, reason) => {
+  printMap('multipleResolves', {type, reason});
 });
 
 
 const unhandledRejections = new Map();
-
+let id = 0;
 process.on('unhandledRejection', (reason, promise) => {
-    unhandledRejections.set(promise, reason);
-    printMap('unhandledRejection', {promise, reason});
-  });
+  id++
+  unhandledRejections.set(promise, id);
+  printMap('unhandledRejection', {id, reason, stack: reason.stack});
+});
 process.on('rejectionHandled', (promise) => {
-    unhandledRejections.delete(promise);
-    printMap('rejectionHandled (oreviously reported unhandled, handled with a delay)', {promise, reason});
-  });
+  const which = unhandledRejections.get(promise);
+  unhandledRejections.delete(promise);
+  printMessage(`rejectionHandled id: ${which} (previously reported unhandled, handled with a delay)`);
+});

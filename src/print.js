@@ -1,11 +1,12 @@
+const prefix = '[aid] '
 module.exports = {
-  printMessage(title, message) {
-    process._rawDebug(title, message);
+  printMessage(message) {
+    process._rawDebug(prefix, message);
   },
   printMap(title, obj) {
-    process._rawDebug(title, 
+    process._rawDebug(prefix + title, 
       Object.keys(obj)
-        .map(k => `${k}: ${obj[k]}`)
+        .map(k => ` ${k}: ${obj[k]}`)
         .join()
     );
   }

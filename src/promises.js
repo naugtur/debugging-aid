@@ -1,5 +1,5 @@
 const { printMap, printMessage } = require('./print')
-process.on('multipleResolves', (type, reason) => {
+process.on('multipleResolves', (type, promise, reason) => {
   printMap('multipleResolves', { type, reason })
 })
 

@@ -1,8 +1,7 @@
 {
   "name": "debugging-aid",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "description": "Experimental tools for debugging Node.js apps without pausing",
-  "main": "index.js",
   "scripts": {
     "start": "standard --fix"
   },

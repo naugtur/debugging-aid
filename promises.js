@@ -1,4 +1,4 @@
-const { printMap, printMessage } = require('./print')
+const { printMap, printMessage } = require('./lib/print')
 process.on('multipleResolves', (type, promise, reason) => {
   printMap('multipleResolves', { type, reason })
 })

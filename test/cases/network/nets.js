@@ -9,3 +9,5 @@ bus5.fetchDetours(() => { })
 request('http://example.com')
 got('http://example.com')
 axios('http://example.com')
+
+// console.log(require('module')._cache)

@@ -1,6 +1,6 @@
 'use strict'
 const notSoSlow = (cb) => {
-  `let's take some time but not too much`.repeat(100).split('').join(':)')
+  'let\'s take some time but not too much'.repeat(100).split('').join(':)')
   cb && cb()
 }
 

@@ -4,7 +4,7 @@
   "description": "Experimental tools for debugging Node.js apps without pausing",
   "main": "index.js",
   "scripts": {
-    "start": "standard --fix"
+    "start": "npx standard --fix"
   },
   "repository": {
     "type": "git",
@@ -25,12 +25,9 @@
     "url": "https://github.com/naugtur/debugging-aid/issues"
   },
   "homepage": "https://github.com/naugtur/debugging-aid#readme",
-  "devDependencies": {
-    "pre-commit": "^1.2.2",
-    "standard": "^12.0.1"
-  },
+  "devDependencies": {},
   "dependencies": {
-    "blocked-at": "^1.1.3",
+    "blocked-at": "^1.2.0",
     "mitm": "~1.7.0"
   }
 }

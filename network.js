@@ -7,7 +7,7 @@ mitm.on('connect', (socket, opts) => {
   Error.captureStackTrace(e)
   const cleanStack = cleanMitmStack(e.stack)
   printMap('network, outgoing', {
-    href: opts.href,
+    to: opts.href || (opts.uri && opts.uri.href) || `${opts.protocol}//${opts.host || opts.hostname}:${opts.port}${opts.pathname}`,
     stack: cleanStack.join('\n')
   })
   socket.bypass()

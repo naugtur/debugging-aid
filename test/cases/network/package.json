@@ -1,0 +1,19 @@
+{
+  "name": "network-test",
+  "private": true,
+  "version": "1.0.0",
+  "description": "",
+  "main": "nets.js",
+  "scripts": {
+    "test": "node --async-stack-traces --require ../../../network.js nets.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.19.0",
+    "got": "^9.6.0",
+    "request": "^2.88.0",
+    "septa": "^0.2.0"
+  }
+}

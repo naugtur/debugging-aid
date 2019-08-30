@@ -34,7 +34,7 @@ All outputs from debugging-aid start with `[aid] `
 |`debugging-aid/blocked`| Attempt to list stack traces for functions synchronously blocking the event loop|
 |`debugging-aid/network`| Lists all outgoing network requests with their full URL and a stack trace pointing to the code making the request|
 |`debugging-aid/moduse`| Lists stack traces pointing to where a module is required. Module name is passed via AID_MODULE env variable - see details below|
-|`debugging-aid/hooks`| **work in progress** Produces perf hooks output containing a diagram of asynchronous calls in the application run. See instructions below|
+|`debugging-aid/hooks`| Produces a tree of asynchronous calls and perf hooks output containing a diagram of asynchronous calls with their timing in the application run. See instructions below|
 
 #### Using debugging-aid/moduse
 
@@ -56,19 +56,42 @@ AID_MODULE='/home/you/app/node_modules/request/index.js' node --require debuggin
 
 #### Using debugging-aid/hooks
 
-This one is still a work in porgress and probably doesn't work at all.
-
 ```
-node --trace-event-categories node.perf --require=debugging-aid/hooks app.js
+AID_HOOK_SCOPE='what to look for' node --trace-event-categories node.perf --require=debugging-aid/hooks app.js
 ```
-Load output to the `about:tracing` interface in chromium/chrome dev tools
 
+The tool will look for AID_HOOK_SCOPE in stack traces of all functions called in new asynchronous context and trace their execution along with their descendants.   
+- set AID_HOOK_SCOPE to the path to a file with code you're interested in tracing. (:linenumber will also work, it's just searching for a string in stack traces)
+- Run it in the VScode terminal and you can click links in the output to jump straight to locations in code.   
+- Load the node_trace file to the `about:tracing` interface in chromium/chrome dev tools and see the beginning and the ending (hence the time of synchronous execution) of each function traced.  
+
+How to interpret the output:
+```
+   └[2->3] Promise.then (<anonymous>)    at start (/storage/projects/github/debugging-aid/test/cases/promise.js:7:8)
+```
+- [2->3] means the asynchronous jump started at the asyncId==2 and current asyncId is 3. Using indentation hints and these numbers you can follow a chain of promises or other asynchronous jumps.
+- SOMETHING1 at SOMETHING2 (path) - SOMETHING1 indicates what has been run. SOMETHING2 is the name of the function inside of which the asynchronous call was initiated. Path points to an exact line in code.
+- The lines are printed after each function ends its synchronous execution
+
+This is very experimental and might provide incorrect information under unusual circumstances.  
+Also, will definitely not work if your file paths contain braces. A lot of stacktrace parsing is involved.
+
+Tested on Node.js v12.8.0  
+Should work in some later versions of Node.js v11 and should not work in anything older than that.
+
+Run this to try it out on an example - should help you understand what it does.
+```
+AID_HOOK_SCOPE='test/cases/promise' node --trace-event-categories node.perf test/manual-hooks.js 
+AID_HOOK_SCOPE='test/cases/helper' node --trace-event-categories node.perf test/manual-hooks.js 
+```
 
 ### Technical details
+If you're interested
 
 - Tools use `process._rawDebug` to print to console to avoid interfering with async hooks etc.
 - debugging-aid/promises uses `multipleResolves` and `unhandledRejection` events
 - debugging-aid/network hooks into socket implementation, so it can only print the URL, won't print http method etc. (unless you decide to contribute that)
 - debugging-aid/moduse hooks into node's internal module cache and checks if there's been a cache fetch for the name of the module
+
 ## Blue Oak Model License 1.0.0
 https://blueoakcouncil.org/license/1.0.0

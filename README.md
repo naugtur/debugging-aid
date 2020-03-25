@@ -94,5 +94,10 @@ If you're interested
 - debugging-aid/network hooks into socket implementation, so it can only print the URL, won't print http method etc. (unless you decide to contribute that)
 - debugging-aid/moduse hooks into node's internal module cache and checks if there's been a cache fetch for the name of the module
 
+## TODOs
+
+- get `moduse` to also support imports, not just require
+- pad asyncIDs with zeros in hooks so they're displayed correctly in chrome://tracing 
+
 ## Blue Oak Model License 1.0.0
 https://blueoakcouncil.org/license/1.0.0

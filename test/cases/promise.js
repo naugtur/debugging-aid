@@ -1,7 +1,7 @@
 'use strict'
 const slow = require('./helper.slowfunc')
 
-module.exports = function start() {
+module.exports = function start () {
   Promise.all([
     Promise.resolve(1)
       .then(a => a++)
@@ -17,7 +17,7 @@ module.exports = function start() {
       .then(a => a++)
       .then(a => [a])
       .then(a => a.join(',').repeat(50).split(','))
-      .then(function aNamedFunction(a) {
+      .then(function aNamedFunction (a) {
         a[0] = 1
         return slow()
       })

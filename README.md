@@ -42,6 +42,8 @@ All outputs from debugging-aid start with `[aid] `
 
 Tested in Node.js v12
 
+In newer versions of Node, some of the internal modules are using ES Modules and imports. Hooks for that exist, but are still very experimental. I might add them, but for now be aware this tool doesn't work with imports. https://nodejs.org/api/esm.html#esm_experimental_loaders
+
 To list traces to all modules that require the `net` internal module:
 
 ```
@@ -54,6 +56,7 @@ This would list where `request` was required, but only the one installed top-lev
 ```
 AID_MODULE='/home/you/app/node_modules/request/index.js' node --require debugging-aid/moduse app.js 
 ```
+
 
 
 #### Using debugging-aid/hooks

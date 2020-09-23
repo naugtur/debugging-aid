@@ -1,6 +1,6 @@
 {
   "name": "debugging-aid",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "Experimental tools for debugging Node.js apps without pausing",
   "main": "index.js",
   "scripts": {

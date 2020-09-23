@@ -1,5 +1,6 @@
 // multiple resolves
 const work = (input) => new Promise((resolve, reject) => {
+  /* eslint-disable */
   switch (input) {
     case 1:
       resolve('ok')

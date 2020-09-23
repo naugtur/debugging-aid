@@ -28,6 +28,7 @@
   "devDependencies": {},
   "dependencies": {
     "blocked-at": "^1.2.0",
-    "mitm": "~1.7.0"
+    "mitm": "^1.7.1",
+    "request-to-curl": "^0.1.6"
   }
 }

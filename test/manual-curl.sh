@@ -1,0 +1,1 @@
+node --require ./curl.js test/cases/network/nets.js

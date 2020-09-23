@@ -3,7 +3,6 @@ const { PerformanceObserver } = require('perf_hooks')
 const v8 = require('v8')
 const { printMessage } = require('./lib/print')
 
-
 function saveHistory (length, evaluate) {
   const data = {}
 
@@ -21,7 +20,7 @@ function saveHistory (length, evaluate) {
   }
 }
 
-const HISTORY_LENGHT=5
+const HISTORY_LENGHT = 5
 const heapHistory = saveHistory(HISTORY_LENGHT, (data) => {
   Object.entries(data).forEach(([key, history]) => {
     let prev = 0
@@ -34,13 +33,13 @@ const heapHistory = saveHistory(HISTORY_LENGHT, (data) => {
       }
       prev = size
     })
-    if(isGrowing){
-        printMessage(`Heap '${key}' was growing for ${HISTORY_LENGHT} consecutive GCs, ${history}`)
+    if (isGrowing) {
+      printMessage(`Heap '${key}' was growing for ${HISTORY_LENGHT} consecutive GCs, ${history}`)
     }
   })
 })
 const obs = new PerformanceObserver((list) => {
-    if (list.getEntries().length > 0) {
+  if (list.getEntries().length > 0) {
     const stats = v8.getHeapSpaceStatistics()
 
     stats.forEach((stat) => {

@@ -34,6 +34,7 @@ All outputs from debugging-aid start with `[aid] `
 |`debugging-aid/blocked`| Attempt to list stack traces for functions synchronously blocking the event loop|
 |`debugging-aid/leak`| Detects a potential memory leak by noticing memory consumprion growing across 5 GC passes|
 |`debugging-aid/network`| Lists all outgoing network requests with their full URL and a stack trace pointing to the code making the request|
+|`debugging-aid/curl`| Lists all outgoing http requests as curl commands|
 |`debugging-aid/moduse`| Lists stack traces pointing to where a module is required. Module name is passed via AID_MODULE env variable - see details below|
 |`debugging-aid/promisecount`| prints the number of promises created while the process was running right before it exits|
 |`debugging-aid/hooks`| Produces a tree of asynchronous calls and perf hooks output containing a diagram of asynchronous calls with their timing in the application run. See instructions below|

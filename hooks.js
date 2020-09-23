@@ -51,10 +51,28 @@ const asyncHook = asyncHooks.createHook({
 
     performance.mark('a' + asyncId)
     const prefix = ' '.repeat(info.depth - 1) + '└'
-    printMessage(`${prefix}[${info.triggerAsyncId}->${asyncId}] ${info.funcId}`)
-    performance.measure(`[${info.triggerAsyncId}->${asyncId}] ${info.funcId}`, 'b' + asyncId, 'a' + asyncId)
+    printMessage(`${prefix}[${denominate(info.triggerAsyncId)}->${denominate(asyncId)}] ${info.funcId}`)
+    performance.measure(`[${denominate(asyncId)} from ${denominate(info.triggerAsyncId)}] ${info.funcId}`, 'b' + asyncId, 'a' + asyncId)
   }
 // TODO add destroy to clean up data in case node reuses sayncIds
 })
+
+let first=0;
+function denominate(num){
+  if(!first){
+    first = parseInt(num,10)-1
+  }
+  return pad(num-first)
+}
+
+function pad (num) {
+  if (num < 10) return '00000' + num
+  if (num < 100) return '0000' + num
+  if (num < 1000) return '000' + num
+  if (num < 10000) return '00' + num
+  if (num < 100000) return '0' + num
+  return num
+}
+
 
 asyncHook.enable()

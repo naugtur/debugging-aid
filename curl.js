@@ -4,6 +4,7 @@ const { printMessage } = require('./lib/print')
 const oldRequest = http.request
 http.request = (options, callback) => {
   const re = oldRequest(options, callback)
-  printMessage('[outgoing] ' + re.toCurl())
+  re.on('finish', () => printMessage(re.toCurl()))
+
   return re
 }

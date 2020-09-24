@@ -57,12 +57,12 @@ const asyncHook = asyncHooks.createHook({
 // TODO add destroy to clean up data in case node reuses sayncIds
 })
 
-let first=0;
-function denominate(num){
-  if(!first){
-    first = parseInt(num,10)-1
+let first = 0
+function denominate (num) {
+  if (!first) {
+    first = parseInt(num, 10) - 1
   }
-  return pad(num-first)
+  return pad(num - first)
 }
 
 function pad (num) {
@@ -73,6 +73,5 @@ function pad (num) {
   if (num < 100000) return '0' + num
   return num
 }
-
 
 asyncHook.enable()

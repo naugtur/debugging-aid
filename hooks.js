@@ -15,6 +15,9 @@ function getDepthFor (asyncId, triggerAsyncId) {
 function getFunctionId (stack, asyncId) {
   // debugLog(cleanHooksStack(stack))
   const meta = cleanHooksStackMeta(stack)
+  if (meta.untraceable) {
+    return null
+  }
   let clean = meta.frames[0]
   if (clean.split('(')[1][0] !== '/') {
     printMessage(`COULD NOT PROCESS STACKTRACE ${asyncId} ${stack.split('\n').slice(2).join('\n')}`)
@@ -34,7 +37,9 @@ const asyncHook = asyncHooks.createHook({
     Error.captureStackTrace(e)
     if (data.has(triggerAsyncId) || e.stack.includes(filePath)) {
       const funcId = getFunctionId(e.stack, asyncId)
-      data.set(asyncId, { funcId, triggerAsyncId, depth: getDepthFor(asyncId, triggerAsyncId) })
+      if (funcId) {
+        data.set(asyncId, { funcId, triggerAsyncId, depth: getDepthFor(asyncId, triggerAsyncId) })
+      }
     }
   },
 

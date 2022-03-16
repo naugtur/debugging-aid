@@ -46,14 +46,21 @@ Whenever there's a point in your code where you feel like adding `console.log('h
 
 ```
 [aid]  
-[asnId][milisecs]
-[    1][    0.02] Object.<anonymous> (./test/cases/promise-bugger.js:4:1) 
+|    ms asId | full stack  | position                 
+                           |> optional message 
+|   0.01   1 |  ./156.log:1| Object.<anonymous> (./test/cases/promise-bugger.js:4:1)   
+|   1.73   6 | ./156.log:11| ./test/cases/promise-bugger.js:12:9   
+| 104.99   6 | ./156.log:15| ./test/cases/promise-bugger.js:15:19  
+                           |> after 
+| 105.15  12 | ./156.log:19| aNamedFunction (./test/cases/promise-bugger.js:24:9)   
+| 204.81  17 | ./156.log:23| ./test/cases/promise-bugger.js:30:5   
 ...
 ```
-First number is the current async Id - you can see if two logs happened in the same async context or not.
-Second is time in miliseconds from the first `thebugger` use. Followed by the top of current stack trace.
+`asId` number is the current async Id - you can see if two logs happened in the same async context (synchronously after each other) or not.
+`ms` is time in miliseconds from the first `thebugger` use. Followed by the top of current stack trace.  
+Full stack traces are collected in a file, each output line points to the line in the log file.
 
-You can also do `thebugger = 'message';` to append a string at the end of the line
+You can also do `thebugger = 'message';` to add an optional message
 
 If your program doesn't end gently and the message does not get printed, you can print it upon request by calling thebugger as a function:
 ```js

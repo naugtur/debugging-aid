@@ -1,38 +1,69 @@
 'use strict'
 
-const { getCurrentPosition } = require('./lib/cleanStack')
+const { getCurrentPosition, getFrames } = require('./lib/cleanStack')
 const { printMessage } = require('./lib/print')
 const { createHook, executionAsyncId } = require('async_hooks');
-createHook({ init() {} }).enable(); // forces PromiseHooks to be enabled.
+const fs = require('fs');
+createHook({ init() { } }).enable(); // forces PromiseHooks to be enabled.
 
-const log = ['[asnId][milisecs]'];
+const description = { id: 'asId', dt: 'ms ', pos: 'position               ', stackRef: 'full stack  ', msg: 'optional message' }
+let log;
+let stacks;
+let stacksFile;
+let currentStacksLine;
+let t0;
+
+function init() {
+    t0 = undefined
+    log = [description]
+    stacks = []
+    currentStacksLine = 1
+
+    const rand = Math.random().toFixed(3).substring(2)
+    stacksFile = `./${rand}.log`
+}
+
+function saveStack(stack) {
+    const stackRef = `${stacksFile}:${currentStacksLine}`
+    const frames = getFrames(stack, 1)
+    currentStacksLine += frames.length + 2
+    stacks.push('thebugger\n' + frames.join('\n') + '\n')
+    return stackRef
+}
 
 function hrtime() {
     const t = process.hrtime()
     return (t[0] * 1000000 + t[1] / 1000) / 1000
 }
 
-function pad(num, text) {
-    text = text || num
-    if (num < 10) return '    ' + text
-    if (num < 100) return '   ' + text
-    if (num < 1000) return '  ' + text
-    if (num < 10000) return ' ' + text
-    return text
+function pad(text, max = 5) {
+    text = '' + text
+    const num = Math.max(0, (max - text.length))
+    return ' '.repeat(num) + text;
 }
 
+function printLog({ id, dt, pos, stackRef, msg }) {
+    msg && (msg = `\n                           |> ${msg}`)
+    return (`|${pad(dt,7)}${pad(id,4)} |${pad(stackRef,stacksFile.length+4)}| ${pos}  ${msg} `)
+}
 function flush() {
-    printMessage('\n' + log.join('\n'))
+    printMessage('\n' + log.map(printLog).join('\n'))
+    fs.writeFileSync(stacksFile, stacks.join('\n'))
+    init()
 }
 const buggerCall = (msg = '') => {
     if (!t0) {
         t0 = hrtime()
     }
     const dt = hrtime() - t0
-    log.push(`[${pad(executionAsyncId())}][${pad(dt, dt.toFixed(2))}] ${getCurrentPosition((Error()).stack, 1)} ${msg} `)
+    const stack = (Error()).stack
+    const stackRef = saveStack(stack)
+    const pos = getCurrentPosition(stack, 1)
+    log.push({ id: executionAsyncId(), dt: dt.toFixed(2), pos, stackRef, msg })
 
 }
-let t0;
+
+init()
 Object.defineProperty(globalThis, 'thebugger', {
     enumerable: false,
     writeable: false,

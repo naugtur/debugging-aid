@@ -46,21 +46,22 @@ Whenever there's a point in your code where you feel like adding `console.log('h
 
 ```
 [aid]  
-|    ms  asId |  full stack   | position                 
-                              |   optional message 
-|   0.01    1 |   ./539.log:1 | Object.<anonymous> (./test/cases/promise-bugger.js:4:1)   
-|   1.14    6 |  ./539.log:11 | ./test/cases/promise-bugger.js:12:9   
-| 103.80    6 |  ./539.log:15 | ./test/cases/promise-bugger.js:15:19  
-                              |   after 
-| 103.95   12 |  ./539.log:19 | aNamedFunction (./test/cases/promise-bugger.js:24:9)   
-| 203.81   17 |  ./539.log:23 | ./test/cases/promise-bugger.js:30:5    
+|ms     asId | stack & data  |data snip | position               
+|0.01   1    | ./568.log:1   |          | Object.<anonymous> (./test/cases/promise-bugger.js:4:1)
+|1.46   6    | ./568.log:13  |          | ./test/cases/promise-bugger.js:12:9
+|104.57 6    | ./568.log:19  |after     | ./test/cases/promise-bugger.js:15:19
+|104.91 12   | ./568.log:25  |{!}       | aNamedFunction (./test/cases/promise-bugger.js:24:19)
+|206.18 17   | ./568.log:31  |          | ./test/cases/promise-bugger.js:30:5 
 ...
 ```
 `asId` number is the current async Id - you can see if two logs happened in the same async context (synchronously after each other) or not.
 `ms` is time in miliseconds from the first `thebugger` use. Followed by the top of current stack trace.  
-Full stack traces are collected in a file, each output line points to the line in the log file.
+Full stack traces are collected in a file, each output line points to the line in the log file.  
 
-You can also do `thebugger = 'message';` to add an optional message
+You can also do `thebugger = data;` 
+- if data is a string, a 10 character snippet will appear on the line and the whole text will be written to the log
+- if data is not a string, `{!}` will appear and the whole result of util.inspect(data) will be written to the log
+
 
 If your program doesn't end gently and the message does not get printed, you can print it upon request by calling thebugger as a function:
 ```js

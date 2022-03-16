@@ -21,7 +21,7 @@ module.exports = function start() {
       .then(a => [a])
       .then(a => a.join(',').repeat(50).split(','))
       .then(function aNamedFunction(a) {
-        thebugger;
+        thebugger = {a};
         a[0] = 1
         return slow()
       })

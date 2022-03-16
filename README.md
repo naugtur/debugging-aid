@@ -30,14 +30,35 @@ All outputs from debugging-aid start with `[aid] `
 
 |name to require|description|
 |---|---|
-|`debugging-aid/promises`| Supports basic handlers for detecting potential issues with promises. Logs them to console |
+|`debugging-aid/thebugger`| Non-interactive debugger - logs all passes through the makred location after the program ends |
 |`debugging-aid/blocked`| Attempt to list stack traces for functions synchronously blocking the event loop|
 |`debugging-aid/leak`| Detects a potential memory leak by noticing memory consumprion growing across 5 GC passes|
 |`debugging-aid/network`| Lists all outgoing network requests with their full URL and a stack trace pointing to the code making the request|
 |`debugging-aid/curl`| Lists all outgoing http requests as curl commands|
 |`debugging-aid/moduse`| Lists stack traces pointing to where a module is required. Module name is passed via AID_MODULE env variable - see details below|
 |`debugging-aid/promisecount`| prints the number of promises created while the process was running right before it exits|
+|`debugging-aid/promises`| Supports basic handlers for detecting potential issues with promises. Logs them to console |
 |`debugging-aid/hooks`| Produces a tree of asynchronous calls and perf hooks output containing a diagram of asynchronous calls with their timing in the application run. See instructions below|
+
+#### Using debugging-aid/thebugger
+
+Whenever there's a point in your code where you feel like adding `console.log('here!')` use `thebugger;` instead. As a result, when the program ends, you'll get a log like this:
+
+```
+[aid]  
+[asnId][milisecs]
+[    1][    0.02] Object.<anonymous> (./test/cases/promise-bugger.js:4:1) 
+...
+```
+First number is the current async Id - you can see if two logs happened in the same async context or not.
+Second is time in miliseconds from the first `thebugger` use. Followed by the top of current stack trace.
+
+You can also do `thebugger = 'message';` to append a string at the end of the line
+
+If your program doesn't end gently and the message does not get printed, you can print it upon request by calling thebugger as a function:
+```js
+thebugger();
+```
 
 #### Using debugging-aid/moduse
 

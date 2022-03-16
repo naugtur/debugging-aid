@@ -7,7 +7,7 @@ const path = require('path');
 const fs = require('fs');
 const util = require('util');
 createHook({ init() { } }).enable(); // forces PromiseHooks to be enabled.
-
+const CWD = process.cwd()
 const description = { id: 'asId', dt: 'ms ', pos: 'position               ', stackRef: 'stack & data', snip: 'data snip' }
 let log;
 let stacks;
@@ -24,22 +24,18 @@ function init() {
     snipUsed = false
 
     const rand = Math.random().toFixed(3).substring(2)
-    stacksFile = `./${rand}.md`
+    stacksFile = `./${rand}.log`
 }
 
-function saveStack({ stack, data, id, dt }) {
+function saveStack({ stack, data, id, pos, dt }) {
     const stackRef = `${stacksFile}:${currentStacksLine}`
     const frames = getFrames(stack, 1)
-    const payload = `
-## ${dt}-${id}
+    const payload = `## [${dt} ${id}] ${pos}
 DATA:
-\`\`\`js
 ${util.inspect(data, { depth: 10 })}
-\`\`\`
 STACK:
-\`\`\`
 ${frames.join('\n')}
-\`\`\`
+--------------------------------------------------------------
 `
     const lines = (payload.match(/\n/g) || '').length + 1
 
@@ -64,22 +60,15 @@ function printLog({ id, dt, pos, stackRef, snip }) {
     return (`|${pad(dt, 7)}${pad(id, 5)}| ${pad(stackRef, stacksFile.length + 5)}|${snip} ${pos}`)
 }
 
-const tableHead = `
-# Log
-
-|ms|asyncId|link|snippet|position|
-| ---| ---| ---| ---| --- |
-`
-
-function printLogMd({ id, dt, pos, stackRef, snip }) {
-    return (`|${pad(dt,8)}|${pad(id,8)}| [jump](#${dt}-${id}) | ${pad(snip,10)} | ${pos} |`)
+function printLogLong(data) {
+    data.stackRef = pad(path.resolve(CWD, data.stackRef), CWD.length + stacksFile.length + 5)
+    return printLog(data)
 }
 
 function flush() {
-    const logLocation = `[ ${path.resolve(process.cwd(), stacksFile)}:${currentStacksLine} ]`
+    const logLocation = `[ ${path.resolve(CWD, stacksFile)}:${currentStacksLine} ]`
     printMessage(logLocation + '\n' + log.map(printLog).join('\n'))
-    log.shift()
-    fs.writeFileSync(stacksFile, stacks.join('\n') + tableHead + log.map(printLogMd).join('\n'))
+    fs.writeFileSync(stacksFile, stacks.join('\n') + '\n' + log.map(printLogLong).join('\n'))
     init()
 }
 const buggerCall = (data) => {
@@ -89,8 +78,8 @@ const buggerCall = (data) => {
     const dt = (hrtime() - t0).toFixed(2)
     const id = executionAsyncId()
     const stack = (Error()).stack
-    const stackRef = saveStack({ stack, id, dt, data })
     const pos = getCurrentPosition(stack, 1)
+    const stackRef = saveStack({ stack, id, dt, pos, data })
     let snip = ''
     if (typeof data !== 'undefined') {
         snipUsed = true

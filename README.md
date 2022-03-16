@@ -45,24 +45,26 @@ All outputs from debugging-aid start with `[aid] `
 Whenever there's a point in your code where you feel like adding `console.log('here!')` use `thebugger;` instead. As a result, when the program ends, you'll get a log like this:
 
 ```
-[aid]  [ /home/naugtur/repo/debugging-aid/011.md:66 ]
-|ms     asId | stack & data |data snip | position               
-|0.01   1    | ./011.md:1   |          | Object.<anonymous> (./test/cases/promise-bugger.js:4:1)
-|1.81   6    | ./011.md:19  |          | ./test/cases/promise-bugger.js:12:9
-|104.90 6    | ./011.md:31  |after     | ./test/cases/promise-bugger.js:15:19
-|105.25 12   | ./011.md:43  |{!}       | aNamedFunction (./test/cases/promise-bugger.js:24:19)
-|205.94 17   | ./011.md:55  |          | ./test/cases/promise-bugger.js:30:5
+[aid]  [ /home/naugtur/repo/debugging-aid/879.log:46 ]
+|ms     asId | stack & data  |data snip | position               
+|0.02   1    | ./879.log:1   |          | Object.<anonymous> (./test/cases/promise-bugger.js:4:1)
+|2.19   6    | ./879.log:15  |          | ./test/cases/promise-bugger.js:12:9
+|105.55 6    | ./879.log:23  |after     | ./test/cases/promise-bugger.js:15:19
+|105.99 12   | ./879.log:31  |{!}       | aNamedFunction (./test/cases/promise-bugger.js:24:19)
+|207.07 17   | ./879.log:39  |          | ./test/cases/promise-bugger.js:30:5
+...
 ```
 And a markdown file with detailed information.
 
 `asId` number is the current asyncId - you can see if two logs happened in the same async context (synchronously after each other) or not.
 `ms` is time in miliseconds from the first `thebugger` use. Followed by the top of current stack trace.  
-Full stack traces and collected data are written to a file, each output line points to the line in the md file. The log is also written at the bottom of the ???.md
+Full stack traces and collected data are written to a file, each output line points to the line in the log file. The log is also written at the bottom of the log file
 
 You can also do `thebugger = data;` 
-- if data is a string, a 10 character snippet will appear on the line and the whole text will be written to the md
-- if data is not a string, `{!}` will appear and the whole result of util.inspect(data) will be written to the md
+- if data is a string, a 10 character snippet will appear on the line and the whole text will be written to the log
+- if data is not a string, `{!}` will appear and the whole result of util.inspect(data) will be written to the log
 
+The output and the log are optimized to make your IDE recognize the references to lines in files, so `(ctrl/cmd) + click` should let you jump right into code.
 
 If your program doesn't end gently and the message does not get printed, you can print it upon request by calling thebugger as a function:
 ```js

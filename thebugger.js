@@ -2,7 +2,8 @@
 
 const { getCurrentPosition } = require('./lib/cleanStack')
 const { printMessage } = require('./lib/print')
-const { executionAsyncId } = require('async_hooks')
+const { createHook, executionAsyncId } = require('async_hooks');
+createHook({ init() {} }).enable(); // forces PromiseHooks to be enabled.
 
 const log = ['[asnId][milisecs]'];
 

@@ -43,15 +43,15 @@ function pad(text, max = 5) {
 }
 
 function printLog({ id, dt, pos, stackRef, msg }) {
-    msg && (msg = `\n                           |> ${msg}`)
-    return (`|${pad(dt,7)}${pad(id,4)} |${pad(stackRef,stacksFile.length+4)}| ${pos}  ${msg} `)
+    msg = msg === undefined ? '' : `\n                              |   ${msg}`
+    return (`|${pad(dt,7)}${pad(id,5)} |${pad(stackRef,stacksFile.length+5)} | ${pos}  ${msg} `)
 }
 function flush() {
     printMessage('\n' + log.map(printLog).join('\n'))
     fs.writeFileSync(stacksFile, stacks.join('\n'))
     init()
 }
-const buggerCall = (msg = '') => {
+const buggerCall = (msg) => {
     if (!t0) {
         t0 = hrtime()
     }

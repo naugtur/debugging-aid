@@ -46,14 +46,14 @@ Whenever there's a point in your code where you feel like adding `console.log('h
 
 ```
 [aid]  
-|    ms asId | full stack  | position                 
-                           |> optional message 
-|   0.01   1 |  ./156.log:1| Object.<anonymous> (./test/cases/promise-bugger.js:4:1)   
-|   1.73   6 | ./156.log:11| ./test/cases/promise-bugger.js:12:9   
-| 104.99   6 | ./156.log:15| ./test/cases/promise-bugger.js:15:19  
-                           |> after 
-| 105.15  12 | ./156.log:19| aNamedFunction (./test/cases/promise-bugger.js:24:9)   
-| 204.81  17 | ./156.log:23| ./test/cases/promise-bugger.js:30:5   
+|    ms  asId |  full stack   | position                 
+                              |   optional message 
+|   0.01    1 |   ./539.log:1 | Object.<anonymous> (./test/cases/promise-bugger.js:4:1)   
+|   1.14    6 |  ./539.log:11 | ./test/cases/promise-bugger.js:12:9   
+| 103.80    6 |  ./539.log:15 | ./test/cases/promise-bugger.js:15:19  
+                              |   after 
+| 103.95   12 |  ./539.log:19 | aNamedFunction (./test/cases/promise-bugger.js:24:9)   
+| 203.81   17 |  ./539.log:23 | ./test/cases/promise-bugger.js:30:5    
 ...
 ```
 `asId` number is the current async Id - you can see if two logs happened in the same async context (synchronously after each other) or not.

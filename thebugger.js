@@ -71,7 +71,7 @@ function flush() {
     fs.writeFileSync(stacksFile, stacks.join('\n') + '\n' + log.map(printLogLong).join('\n'))
     init()
 }
-const buggerCall = (data) => {
+const buggerCall = (data, moreData) => {
     if (!t0) {
         t0 = hrtime()
     }
@@ -79,18 +79,37 @@ const buggerCall = (data) => {
     const id = executionAsyncId()
     const stack = (Error()).stack
     const pos = getCurrentPosition(stack, 1)
-    const stackRef = saveStack({ stack, id, dt, pos, data })
     let snip = ''
     if (typeof data !== 'undefined') {
         snipUsed = true
         if (typeof data === 'string') {
             snip = data.substring(0, 10)
+            if (moreData) {
+                data = moreData
+            }
         } else {
             snip = '{!}'
         }
     }
+    const stackRef = saveStack({ stack, id, dt, pos, data })
     log.push({ id, dt: dt, pos, stackRef, snip })
 
+}
+
+const traceAccess = (obj) => {
+    const objid = Math.random().toFixed(4).substring(2);
+    buggerCall(`trace${objid}`)
+    return new Proxy(obj, {
+        get(t, p) {
+            buggerCall(`{${objid}}.${p} get`)
+            return t[p]
+        },
+        set(t, p, v) {
+            buggerCall(`{${objid}}.${p} set`, { [`{${objid}}.${p}`]: v })
+            t[p] = v
+            return true
+        }
+    })
 }
 
 init()
@@ -98,8 +117,11 @@ Object.defineProperty(globalThis, 'thebugger', {
     enumerable: false,
     writeable: false,
     get: () => {
-        buggerCall();
-        return flush;
+        const api = (v) => buggerCall(v);
+        api.flush = flush;
+        api.conditional = (condition, v) => condition && buggerCall(v);
+        api.traceAccess = traceAccess;
+        return api;
     },
     set: (v) => {
         buggerCall(v)

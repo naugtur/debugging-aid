@@ -45,30 +45,73 @@ All outputs from debugging-aid start with `[aid] `
 Whenever there's a point in your code where you feel like adding `console.log('here!')` use `thebugger;` instead. As a result, when the program ends, you'll get a log like this:
 
 ```
-[aid]  [ /home/naugtur/repo/debugging-aid/879.log:46 ]
-|ms     asId | stack & data  |data snip | position               
-|0.02   1    | ./879.log:1   |          | Object.<anonymous> (./test/cases/promise-bugger.js:4:1)
-|2.19   6    | ./879.log:15  |          | ./test/cases/promise-bugger.js:12:9
-|105.55 6    | ./879.log:23  |after     | ./test/cases/promise-bugger.js:15:19
-|105.99 12   | ./879.log:31  |{!}       | aNamedFunction (./test/cases/promise-bugger.js:24:19)
-|207.07 17   | ./879.log:39  |          | ./test/cases/promise-bugger.js:30:5
-...
+[aid]  [ /home/naugtur/repo/debugging-aid/935.log:101 ]
+|ms     asId | stack & data  |data snip   | position               
+|0.47   1    | ./935.log:1   |            | Object.<anonymous> (./test/cases/promise-bugger.js:3:1)
+|0.66   1    | ./935.log:16  |trace2723   | Object.<anonymous> (./test/cases/promise-bugger.js:5:11)
+|1.08   1    | ./935.log:31  |«{2723}.then| Function.resolve (<anonymous>)
+|2.12   3    | ./935.log:46  |»{2723}.z   | ./test/cases/promise-bugger.js:10:13
+|2.48   8    | ./935.log:54  |            | ./test/cases/promise-bugger.js:18:9
+|2.53   8    | ./935.log:62  |«{2723}.x   | ./test/cases/promise-bugger.js:20:18
+|105.37 8    | ./935.log:70  |after       | ./test/cases/promise-bugger.js:22:19
+|105.59 14   | ./935.log:78  |{!}         | aNamedFunction (./test/cases/promise-bugger.js:31:9)
+|105.78 14   | ./935.log:86  |»{2723}.y   | aNamedFunction (./test/cases/promise-bugger.js:33:13)
+|205.43 20   | ./935.log:94  |            | ./test/cases/promise-bugger.js:38:5
+
+…
 ```
-And a markdown file with detailed information.
+And a log file with detailed information.
 
 `asId` number is the current asyncId - you can see if two logs happened in the same async context (synchronously after each other) or not.
 `ms` is time in miliseconds from the first `thebugger` use. Followed by the top of current stack trace.  
-Full stack traces and collected data are written to a file, each output line points to the line in the log file. The log is also written at the bottom of the log file
+Full stack traces and collected data are written to a file, each output line points to the line in the log file. The log is also written at the bottom of the log file.
 
 You can also do `thebugger = data;` 
-- if data is a string, a 10 character snippet will appear on the line and the whole text will be written to the log
+- if data is a string, a 12 character snippet will appear on the line and the whole text will be written to the log
 - if data is not a string, `{!}` will appear and the whole result of util.inspect(data) will be written to the log
 
 The output and the log are optimized to make your IDE recognize the references to lines in files, so `(ctrl/cmd) + click` should let you jump right into code.
 
-If your program doesn't end gently and the message does not get printed, you can print it upon request by calling thebugger as a function:
+##### More features
+
+If your program doesn't end gently and the message does not get printed, you can print it upon request by calling:
 ```js
-thebugger();
+thebugger.flush();
+```
+
+Instead of assigning, you can call thebugger as a function
+```js
+thebugger(data)
+```
+
+To explicitly decide what the text snippet is going to be, pass 2 values
+```js
+thebugger(snip, data)
+```
+or
+```js
+thebugger.data(snip, data)
+```
+
+To debug conditionally:
+```js
+thebugger.conditional(a===1)
+thebugger.conditional(a===1,value)
+thebugger.conditional(a===1,snip, data)
+```
+
+To **get a trace each time fields on an object are accessed or written**:
+```js
+const tracedObject = thebugger.traceAccess({ a: 1 })
+```
+
+##### Turning thebugger on and off
+
+Add thebugger statements where you need them and then use the following lines to generate a git patch for removing and adding the whole setup at once.
+
+```
+git diff -U1 | grepdiff 'thebugger' --output-matching=hunk >  .thebugger_add.patch
+git diff -U1 | grepdiff 'thebugger' --output-matching=hunk | sed s/^-/+/ > .thebugger_remove.patch
 ```
 
 #### Using debugging-aid/moduse

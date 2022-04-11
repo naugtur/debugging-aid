@@ -11,37 +11,27 @@ const CWD = process.cwd()
 const description = { id: 'asId', dt: 'ms ', pos: 'position               ', stackRef: 'stack & data', snip: 'data snip' }
 let log;
 let stacks;
-let stacksFile;
-let currentStacksLine;
+let stacksFile = `./${Math.random().toFixed(3).substring(2)}.log`;
 let t0;
 let snipUsed;
 
 function init() {
     t0 = undefined
-    log = [description]
+    log = []
     stacks = []
-    currentStacksLine = 1
     snipUsed = false
-
-    const rand = Math.random().toFixed(3).substring(2)
-    stacksFile = `./${rand}.log`
 }
 
-function saveStack({ stack, data, id, pos, dt }) {
-    const stackRef = `${stacksFile}:${currentStacksLine}`
-    const frames = getFrames(stack, 1)
-    const payload = `## [${dt} ${id}] ${pos}
+function saveStack({ stack, data, id, snip, pos, dt }) {
+    const frames = getFrames(stack)
+    const payload = `## [${dt} ${id}] ${snip} ${pos}
 DATA:
 ${util.inspect(data, { depth: 10 })}
 STACK:
 ${frames.join('\n')}
 --------------------------------------------------------------
 `
-    const lines = (payload.match(/\n/g) || '').length + 1
-
-    currentStacksLine += lines
     stacks.push(payload)
-    return stackRef
 }
 
 function hrtime() {
@@ -56,7 +46,7 @@ function pad(text, max = 5) {
 }
 
 function printLog({ id, dt, pos, stackRef, snip }) {
-    snip = snipUsed ? pad(snip, 10) + '|' : ''
+    snip = snipUsed ? pad(snip, 12) + '|' : ''
     return (`|${pad(dt, 7)}${pad(id, 5)}| ${pad(stackRef, stacksFile.length + 5)}|${snip} ${pos}`)
 }
 
@@ -65,25 +55,45 @@ function printLogLong(data) {
     return printLog(data)
 }
 
+let currentStacksLine = 1
 function flush() {
+    const logWithRefs = log.map((item, index) => {
+        item.stackRef = `${stacksFile}:${currentStacksLine}`;
+        currentStacksLine += ((stacks[index] || '').match(/\n/g) || '').length + 1;
+        return item;
+    })
+
     const logLocation = `[ ${path.resolve(CWD, stacksFile)}:${currentStacksLine} ]`
-    printMessage(logLocation + '\n' + log.map(printLog).join('\n'))
-    fs.writeFileSync(stacksFile, stacks.join('\n') + '\n' + log.map(printLogLong).join('\n'))
+    printMessage(logLocation + '\n' + printLog(description) + '\n' + logWithRefs.map(printLog).join('\n'))
+
+    const table = [printLog(description), ...logWithRefs.map(printLogLong)]
+    fs.writeFileSync(stacksFile, `${stacks.join('\n')}
+${table.join('\n')}
+`)
+    currentStacksLine += table.length + 1
+
+
     init()
 }
-const buggerCall = (data, moreData) => {
+
+const undoPrevious = () => {
+    stacks.pop()
+    log.pop()
+    return true
+}
+const buggerCall = (stack, data, moreData) => {
     if (!t0) {
         t0 = hrtime()
     }
     const dt = (hrtime() - t0).toFixed(2)
     const id = executionAsyncId()
-    const stack = (Error()).stack
-    const pos = getCurrentPosition(stack, 1)
+
+    const pos = getCurrentPosition(stack)
     let snip = ''
     if (typeof data !== 'undefined') {
         snipUsed = true
         if (typeof data === 'string') {
-            snip = data.substring(0, 10)
+            snip = data.substring(0, 12)
             if (moreData) {
                 data = moreData
             }
@@ -91,21 +101,24 @@ const buggerCall = (data, moreData) => {
             snip = '{!}'
         }
     }
-    const stackRef = saveStack({ stack, id, dt, pos, data })
-    log.push({ id, dt: dt, pos, stackRef, snip })
+    saveStack({ stack, id, dt, pos, snip, data })
+    log.push({ id, dt: dt, pos, snip })
 
 }
 
-const traceAccess = (obj) => {
+const traceAccess = (stack, obj) => {
     const objid = Math.random().toFixed(4).substring(2);
-    buggerCall(`trace${objid}`)
+    buggerCall(stack, `trace${objid}`)
     return new Proxy(obj, {
         get(t, p) {
-            buggerCall(`{${objid}}.${p} get`)
-            return t[p]
+            const stack = (Error()).stack
+            const v = t[p]
+            buggerCall(stack, `«{${objid}}.${p}`, { [`{${objid}}.${p}`]: v })
+            return v
         },
         set(t, p, v) {
-            buggerCall(`{${objid}}.${p} set`, { [`{${objid}}.${p}`]: v })
+            const stack = (Error()).stack
+            buggerCall(stack, `»{${objid}}.${p}`, { [`{${objid}}.${p}`]: v })
             t[p] = v
             return true
         }
@@ -117,14 +130,21 @@ Object.defineProperty(globalThis, 'thebugger', {
     enumerable: false,
     writeable: false,
     get: () => {
-        const api = (v) => buggerCall(v);
+        const stack = (Error()).stack
+        // So I made it still possible to just call `thebugger;` without calling any of the methods and avoided doubling the entries later. 
+        // Was it worth it? I just love the look of a line saying thebugger; even if it's the worst feature.
+        buggerCall(stack);
+        const api = (v, more) => (undoPrevious() && buggerCall(stack, v, more));
+        api.data = (v, more) => (undoPrevious() && buggerCall(stack, v, more));
         api.flush = flush;
-        api.conditional = (condition, v) => condition && buggerCall(v);
-        api.traceAccess = traceAccess;
+        api.conditional = (condition, v, more) => (undoPrevious() && condition && buggerCall(stack, v, more));
+        api.traceAccess = (obj) => (undoPrevious() && traceAccess(stack, obj));
         return api;
     },
     set: (v) => {
-        buggerCall(v)
+        const stack = (Error()).stack
+        buggerCall(stack, v)
+        return true;
     }
 })
 

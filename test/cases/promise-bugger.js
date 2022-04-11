@@ -1,21 +1,21 @@
 'use strict'
 const slow = require('./helper.slowfunc')
-
 thebugger();
-
+let obj;
 const d = thebugger.traceAccess({ x: 2 })
 module.exports = function start() {
   Promise.all([
     Promise.resolve(d)
       .then(z => {
         z.z = 3;
+        obj = {};
       }),
     Promise.resolve(1)
       .then(a => a++)
       .then(a => [a])
       .then(a => a.join(',').repeat(50).split(','))
       .then(a => {
-        thebugger();
+        thebugger;
         a[0] = 1;
         a[1] = d.x;
         slow()
@@ -34,7 +34,7 @@ module.exports = function start() {
         return slow()
       })
       .catch(console.error)
-  ]).then(() => {
-    thebugger();
+  ]).then((results) => {
+    thebugger;
   })
 }
